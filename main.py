@@ -16,7 +16,8 @@ def load_and_process_image(image):
 def predict(img):
     pred = new_model.predict(img)
     predicted_class = np.argmax(pred, axis=-1)
-    return (pred, predicted_class[0])
+    confidence = np.max(pred) * 100  # Convert to percentage
+    return (pred, predicted_class[0], confidence)
 
 st.title("Traffic Sign Classifier")
 st.write("Upload an image of a traffic sign to make a prediction.")
@@ -32,7 +33,7 @@ if uploaded_image is not None:
         st.image(uploaded_image, use_container_width=True)
 
     img = load_and_process_image(uploaded_image)
-    (predictions, predicted_class) = predict(img)
+    (predictions, predicted_class, confidence) = predict(img)
 
     with col2:
         st.subheader(f"Predicted Sign (Class {predicted_class})")
@@ -43,30 +44,32 @@ if uploaded_image is not None:
         else:
             st.warning(f"Meta image for class {predicted_class} not found.")
 
-else:
-    st.info("Upload an image to start the prediction.")
-
-# Custom CSS
-st.markdown(
-    """
-    <style>
-        .reportview-container {
-            background-color: #f0f8ff;
-        }
-        .stButton>button {
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            border-radius: 10px;
-            padding: 10px 24px;
-        }
-        .stButton>button:hover {
-            background-color: #45a049;
-        }
-        .stTextInput>div>input {
+    st.markdown(
+        f"""
+        <div style="
+            background-color: #10141b;
             border-radius: 10px;
             padding: 10px;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+            text-align: center;
+            margin-top: 20px;
+        ">
+            <h3 style="margin-bottom: 10px;">Confidence</h3>
+            <div style="
+                background: linear-gradient(to right,
+                    hsl({min(120, confidence * 1.2)}, 80%, 45%) 0%,
+                    hsl({min(120, confidence * 1.2)}, 80%, 45%) {confidence}%);
+                color: white;
+                padding: 5px;
+                border-radius: 5px;
+                font-size: 24px;
+                font-weight: bold;
+            ">
+                {confidence:.2f}%
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
+else:
+    st.info("Upload an image to start the prediction.")
