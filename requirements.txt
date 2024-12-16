@@ -6,3 +6,4 @@ scikit-learn
 opencv-python
 matplotlib
 seaborn
+streamlit
